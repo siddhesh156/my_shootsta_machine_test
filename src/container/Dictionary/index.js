@@ -11,33 +11,35 @@ const Dictionary = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [checkValid, setCheckValid] = useState(false);
 
-  const onHandleSearch = () => {
+  const onHandleSearch = async () => {
     if (word !== "") {
       //unset word valid
       setCheckValid(false);
       //set loader
       setIsLoading(true);
+
       //Get data from API
-      axios
-        .get(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`)
-        .then((res) => {
-          //unset loader
-          setIsLoading(false);
-          let result = res?.data;
-          //Setting data from API to the state
-          setSearchData(result[0]?.meanings[0]?.definitions);
-          setErrorMessage("");
-        })
-        .catch((error) => {
-          //Error from API
-          //unset loader
-          setIsLoading(false);
-          //Setting error from API to the state
-          setErrorMessage(
-            "Sorry pal, we couldn't find definitions for the word you were looking for. You can try another word."
-          );
-          setSearchData([]);
-        });
+      try {
+        const response = await axios.get(
+          `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`
+        );
+
+        //unset loader
+        setIsLoading(false);
+        let result = response?.data;
+        //Setting data from API to the state
+        setSearchData(result[0]?.meanings[0]?.definitions);
+        setErrorMessage("");
+      } catch (error) {
+        //Error from API
+        //unset loader
+        setIsLoading(false);
+        //Setting error from API to the state
+        setErrorMessage(
+          "Sorry pal, we couldn't find definitions for the word you were looking for. You can try another word."
+        );
+        setSearchData([]);
+      }
     } else {
       //set word valid
       setCheckValid(true);
