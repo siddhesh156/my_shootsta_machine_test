@@ -4,6 +4,7 @@ import { Button, InputGroup, FormControl, Card } from "react-bootstrap";
 const Dictionary = () => {
   const [word, setWord] = useState("");
   const [searchData, setSearchData] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const onHandleSearch = () => {
     //Get data from API
@@ -11,14 +12,27 @@ const Dictionary = () => {
       .then((res) => res.json())
       .then(
         (result) => {
-          //Setting data from API to the state
-          setSearchData(result[0].meanings[0].definitions);
+          if (result?.message) {
+            //Setting error from API to the state
+            setErrorMessage(result?.message + " You can try another word.");
+            setSearchData([]);
+          } else {
+            //Setting data from API to the state
+            setSearchData(result[0]?.meanings[0]?.definitions);
+            setErrorMessage("");
+          }
         },
         (error) => {
           //Error from API
           console.log("Error from API ", error);
         }
       );
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      onHandleSearch();
+    }
   };
 
   try {
@@ -33,6 +47,7 @@ const Dictionary = () => {
               aria-describedby="basic-addon1"
               value={word}
               onChange={(event) => setWord(event.target.value)}
+              onKeyDown={handleKeyDown}
             />
           </InputGroup>
 
@@ -73,6 +88,23 @@ const Dictionary = () => {
               </Card>
             </div>
           )}
+
+          {errorMessage !== "" ? (
+            <div className="mt-5">
+              <Card style={{ background: "#7c795d" }}>
+                <Card.Body
+                  style={{
+                    color: "rgb(247, 154, 12)",
+                    fontFamily: "Trocchi, serif",
+                  }}
+                >
+                  <Card.Title style={{ textAlign: "center" }}>
+                    {errorMessage}
+                  </Card.Title>
+                </Card.Body>
+              </Card>
+            </div>
+          ) : null}
         </div>
         <style>{`
       .main-container{
