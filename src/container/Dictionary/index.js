@@ -1,7 +1,9 @@
+import axios from "axios";
 import React, { useState } from "react";
 import { Button, InputGroup, FormControl, Card } from "react-bootstrap";
 import Loading from "../../component/Loading";
 import "./index.css";
+
 const Dictionary = () => {
   const [word, setWord] = useState("");
   const [searchData, setSearchData] = useState([]);
@@ -16,27 +18,26 @@ const Dictionary = () => {
       //set loader
       setIsLoading(true);
       //Get data from API
-      fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`)
-        .then((res) => res.json())
-        .then(
-          (result) => {
-            //unset loader
-            setIsLoading(false);
-            if (result?.message) {
-              //Setting error from API to the state
-              setErrorMessage(result?.message + " You can try another word.");
-              setSearchData([]);
-            } else {
-              //Setting data from API to the state
-              setSearchData(result[0]?.meanings[0]?.definitions);
-              setErrorMessage("");
-            }
-          },
-          (error) => {
-            //Error from API
-            console.log("Error from API ", error);
-          }
-        );
+      axios
+        .get(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`)
+        .then((res) => {
+          //unset loader
+          setIsLoading(false);
+          let result = res?.data;
+          //Setting data from API to the state
+          setSearchData(result[0]?.meanings[0]?.definitions);
+          setErrorMessage("");
+        })
+        .catch((error) => {
+          //Error from API
+          //unset loader
+          setIsLoading(false);
+          //Setting error from API to the state
+          setErrorMessage(
+            "Sorry pal, we couldn't find definitions for the word you were looking for. You can try another word."
+          );
+          setSearchData([]);
+        });
     } else {
       //set word valid
       setCheckValid(true);
@@ -49,9 +50,13 @@ const Dictionary = () => {
     }
   };
 
+  const handleChange = (event) => {
+    setWord(event.target.value);
+  };
+
   try {
     return (
-      <React.Fragment>
+      <>
         <div className="main-container">
           <h1>Dictionary</h1>
           <InputGroup className="mb-3" hasValidation>
@@ -62,7 +67,7 @@ const Dictionary = () => {
               value={word}
               required
               isInvalid={checkValid}
-              onChange={(event) => setWord(event.target.value)}
+              onChange={handleChange}
               onKeyDown={handleKeyDown}
             />
             <FormControl.Feedback type="invalid" tooltip>
@@ -133,10 +138,10 @@ const Dictionary = () => {
             </>
           )}
         </div>
-      </React.Fragment>
+      </>
     );
   } catch (error) {
-    console.log("Dictionat Error ", error);
+    console.log("Dictionary Error ", error);
     return null;
   }
 };
