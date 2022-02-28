@@ -4,26 +4,28 @@ import { Button, InputGroup, FormControl, Card } from "react-bootstrap";
 import Loading from "../../component/Loading";
 import "./index.css";
 
-const Dictionary = () => {
-  const [word, setWord] = useState("");
+const Dictionary = ({initialState}) => {
+  const [word, setWord] = useState(initialState);
   const [searchData, setSearchData] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [checkValid, setCheckValid] = useState(false);
 
   const onHandleSearch = async () => {
+    
     if (word !== "") {
       //unset word valid
       setCheckValid(false);
       //set loader
       setIsLoading(true);
 
+     
       //Get data from API
       try {
         const response = await axios.get(
-          `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`
+          `https://api.dictionaryapi.dev/api/v2/entries/en/dog`
         );
-
+        
         //unset loader
         setIsLoading(false);
         let result = response?.data;
@@ -32,6 +34,7 @@ const Dictionary = () => {
         setErrorMessage("");
       } catch (error) {
         //Error from API
+        console.log({error});
         //unset loader
         setIsLoading(false);
         //Setting error from API to the state
@@ -61,6 +64,7 @@ const Dictionary = () => {
       <h1>Dictionary</h1>
       <InputGroup className="mb-3" hasValidation>
         <FormControl
+        id="input"
           placeholder="Search"
           aria-label="Search"
           aria-describedby="basic-addon1"
@@ -79,6 +83,7 @@ const Dictionary = () => {
         variant="dark"
         style={{ alignSelf: "center", width: "70%" }}
         onClick={onHandleSearch}
+        id="submit"
       >
         Submit
       </Button>
@@ -90,7 +95,7 @@ const Dictionary = () => {
       ) : (
         <>
           {searchData.length > 0 && (
-            <div className="mt-5">
+            <div id="search-result" className="mt-5">
               <Card style={{ background: "#7c795d" }}>
                 <Card.Body
                   style={{
@@ -98,7 +103,7 @@ const Dictionary = () => {
                     fontFamily: "Trocchi, serif",
                   }}
                 >
-                  <Card.Title style={{ textAlign: "center" }}>
+                  <Card.Title id="search-result-title" style={{ textAlign: "center" }}>
                     Definitions
                   </Card.Title>
                   <ul>

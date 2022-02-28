@@ -3,7 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 function App() {
   return (
-    <Dictionary />
+    <Dictionary initialState={"dog"} />
   );
 }
 
